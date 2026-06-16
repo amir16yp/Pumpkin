@@ -113,9 +113,6 @@ impl<M: MoveToTargetPos> MoveToTargetPosGoal<M> {
         self.trying_time % 40 == 0
     }
 
-    fn start_moving_to_target(_mob: &dyn Mob) {
-        // TODO: implement when navigation is implemented
-    }
 }
 
 // Contains overridable functions
