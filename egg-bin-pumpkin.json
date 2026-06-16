@@ -15,7 +15,7 @@
     "file_denylist": ["pumpkin"],
     "startup": ".\/pumpkin",
     "config": {
-        "files": "{}",
+        "files": "{\r\n    \"pumpkin.toml\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"motd =\": \"motd = \\\"{{server.build.env.MOTD}}\\\"\",\r\n            \"seed =\": \"seed = \\\"{{server.build.env.SEED}}\\\"\",\r\n            \"online_mode =\": \"online_mode = {{server.build.env.ONLINE_MODE}}\",\r\n            \"default_difficulty =\": \"default_difficulty = \\\"{{server.build.env.DIFFICULTY}}\\\"\",\r\n            \"default_gamemode =\": \"default_gamemode = \\\"{{server.build.env.GAMEMODE}}\\\"\",\r\n            \"force_gamemode =\": \"force_gamemode = {{server.build.env.FORCE_GAMEMODE}}\",\r\n            \"max_players =\": \"max_players = {{server.build.env.MAX_PLAYERS}}\"\r\n        }\r\n    }\r\n}",
         "startup": "{\r\n    \"done\": \"Server is now running.\"\r\n}",
         "logs": "{}",
         "stop": "stop"
