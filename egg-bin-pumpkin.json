@@ -1,0 +1,102 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-06-16T13:37:05+00:00",
+    "name": "Pumpkin",
+    "author": "cheaplydothost@proton.me",
+    "description": "Pumpkin is a Minecraft server built entirely in Rust, offering a fast, efficient, and customizable experience. It prioritizes performance and player enjoyment while adhering to the core mechanics of the game",
+    "features": [],
+    "docker_images": {
+        "debianTrixie": "ghcr.io\/amir16yp\/debian-trixie-yolk:latest"
+    },
+    "file_denylist": [],
+    "startup": ".\/pumpkin",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"Server is now running.\"\r\n}",
+        "logs": "{}",
+        "stop": "stop"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/bash\r\nset -euo pipefail\r\n\r\napt-get update\r\napt-get install -y curl ca-certificates\r\n\r\ncd \/mnt\/server\r\n\r\nBINARY_URL=\"https:\/\/github.com\/Pumpkin-MC\/Pumpkin\/releases\/download\/nightly\/pumpkin-X64-Linux\"\r\n\r\ncurl -L -o pumpkin \"$BINARY_URL\"\r\nchmod +x pumpkin\r\n\r\necho \"Installed files:\"\r\nls -la\r\n\r\n# ----------------------------\r\n# ENV CONFIG (with defaults)\r\n# ----------------------------\r\n\r\nJAVA_PORT=\"${SERVER_PORT:-25565}\"\r\nBEDROCK_PORT=\"${BEDROCK_PORT:-19132}\"\r\n\r\nJAVA_ENABLED=\"${JAVA_ENABLED:-true}\"\r\nBEDROCK_ENABLED=\"${BEDROCK_ENABLED:-false}\"\r\n\r\nSEED=\"${SEED:-1783395253786350322}\"\r\nMAX_PLAYERS=\"${MAX_PLAYERS:-10}\"\r\nVIEW_DISTANCE=\"${VIEW_DISTANCE:-10}\"\r\nSIMULATION_DISTANCE=\"${SIMULATION_DISTANCE:-10}\"\r\nDIFFICULTY=\"${DIFFICULTY:-Normal}\"\r\nMOTD=\"${MOTD:-A blazingly fast Pumpkin server!}\"\r\n\r\nONLINE_MODE=\"${ONLINE_MODE:-true}\"\r\nENCRYPTION=\"${ENCRYPTION:-true}\"\r\nALLOW_NETHER=\"${ALLOW_NETHER:-true}\"\r\nALLOW_END=\"${ALLOW_END:-true}\"\r\nHARDCORE=\"${HARDCORE:-false}\"\r\n\r\nWHITELIST=\"${WHITELIST:-false}\"\r\nENFORCE_WHITELIST=\"${ENFORCE_WHITELIST:-false}\"\r\nALLOW_CHAT_REPORTS=\"${ALLOW_CHAT_REPORTS:-false}\"\r\nGAMEMODE=${GAMEMODE:-Survival}\r\nRCON_ENABLED=\"${RCON_ENABLED:-false}\"\r\nRCON_PORT=\"${RCON_PORT:-25575}\"\r\n\r\n# ----------------------------\r\n# WRITE CONFIG\r\n# ----------------------------\r\n\r\ncat > pumpkin.toml <<EOF\r\njava_edition = ${JAVA_ENABLED}\r\njava_edition_address = \"0.0.0.0:${JAVA_PORT}\"\r\n\r\nbedrock_edition = ${BEDROCK_ENABLED}\r\nbedrock_edition_address = \"0.0.0.0:${BEDROCK_PORT}\"\r\n\r\nseed = \"${SEED}\"\r\nmax_players = ${MAX_PLAYERS}\r\nview_distance = ${VIEW_DISTANCE}\r\nsimulation_distance = ${SIMULATION_DISTANCE}\r\ndefault_difficulty = \"${DIFFICULTY}\"\r\n\r\nop_permission_level = 4\r\nallow_nether = ${ALLOW_NETHER}\r\nallow_end = ${ALLOW_END}\r\nhardcore = ${HARDCORE}\r\n\r\nonline_mode = ${ONLINE_MODE}\r\nencryption = ${ENCRYPTION}\r\n\r\nmotd = \"${MOTD}\"\r\ntps = 20.0\r\ndefault_gamemode = \"${GAMEMODE}\"\r\nforce_gamemode = false\r\n\r\nscrub_ips = true\r\nuse_favicon = true\r\ndefault_level_name = \"world\"\r\n\r\nallow_chat_reports = ${ALLOW_CHAT_REPORTS}\r\nwhite_list = ${WHITELIST}\r\nenforce_whitelist = ${ENFORCE_WHITELIST}\r\n\r\n[logging]\r\nenabled = true\r\nthreads = true\r\ncolor = true\r\ntimestamp = true\r\nfile = \"latest.log\"\r\n\r\n[resource_pack.java]\r\nenabled = false\r\nurl = \"\"\r\nsha1 = \"\"\r\nprompt_message = \"\"\r\nforce = false\r\n\r\n[resource_pack.bedrock]\r\nenabled = false\r\nforce = false\r\npacks = []\r\n\r\n[world]\r\nlighting = \"default\"\r\nautosave_ticks = 0\r\n\r\n[world.chunk]\r\ntype = \"pump\"\r\n\r\n[networking.authentication]\r\nenabled = true\r\nconnect_timeout = 5000\r\nread_timeout = 5000\r\nprevent_proxy_connections = false\r\n\r\n[networking.authentication.player_profile]\r\nallow_banned_players = false\r\nallowed_actions = [\"FORCED_NAME_CHANGE\", \"USING_BANNED_SKIN\"]\r\n\r\n[networking.authentication.textures]\r\nenabled = true\r\nallowed_url_schemes = [\"http\", \"https\"]\r\nallowed_url_domains = [\".minecraft.net\", \".mojang.com\"]\r\n\r\n[networking.authentication.textures.types]\r\nskin = true\r\ncape = true\r\nelytra = true\r\n\r\n[networking.query]\r\nenabled = true\r\naddress = \"0.0.0.0:${JAVA_PORT}\"\r\n\r\n[networking.rcon]\r\nenabled = ${RCON_ENABLED}\r\naddress = \"0.0.0.0:${RCON_PORT}\"\r\npassword = \"\"\r\nmax_connections = 10\r\n\r\n[networking.rcon.logging]\r\nlogged_successfully = true\r\nwrong_password = true\r\ncommands = true\r\nquit = true\r\n\r\n[networking.proxy]\r\nenabled = false\r\n\r\n[networking.proxy.velocity]\r\nenabled = false\r\nsecret = \"\"\r\n\r\n[networking.proxy.bungeecord]\r\nenabled = false\r\n\r\n[networking.java_compression]\r\nenabled = true\r\nthreshold = 256\r\nlevel = 4\r\n\r\n[networking.bedrock_compression]\r\nenabled = true\r\nthreshold = 256\r\nlevel = 4\r\n\r\n[networking.lan_broadcast]\r\nenabled = false\r\n\r\n[commands]\r\nuse_console = true\r\nuse_tty = true\r\nlog_console = true\r\ndefault_op_level = 0\r\n\r\n[chat]\r\nformat = \"<{DISPLAYNAME}> {MESSAGE}\"\r\n\r\n[pvp]\r\nenabled = true\r\nhurt_animation = true\r\nprotect_creative = true\r\nknockback = true\r\nswing = true\r\n\r\n[server_links]\r\nenabled = true\r\nbug_report = \"https:\/\/github.com\/Pumpkin-MC\/Pumpkin\/issues\"\r\nsupport = \"\"\r\nstatus = \"\"\r\nfeedback = \"\"\r\ncommunity = \"\"\r\nwebsite = \"\"\r\nforums = \"\"\r\nnews = \"\"\r\nannouncements = \"\"\r\n\r\n[server_links.custom]\r\n\r\n[player_data]\r\nsave_player_data = true\r\nsave_player_cron_interval = 300\r\n\r\n[fun]\r\napril_fools = false\r\n\r\n[recipe]\r\nsend_recipes = true\r\n\r\n[plugins]\r\nblocked_permissions = []\r\nEOF\r\n\r\necho \"Generated pumpkin.toml\"",
+            "container": "ghcr.io\/pterodactyl\/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "MOTD",
+            "description": "A blazingly fast pumpkin server",
+            "env_variable": "MOTD",
+            "default_value": "A blazingly fast pumpkin server",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "string",
+            "field_type": "text"
+        },
+        {
+            "name": "Seed",
+            "description": "World random seed",
+            "env_variable": "SEED",
+            "default_value": "buckbroken",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "string",
+            "field_type": "text"
+        },
+        {
+            "name": "Online Mode",
+            "description": "Authenticate players with mojang servers",
+            "env_variable": "ONLINE_MODE",
+            "default_value": "true",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Difficulty",
+            "description": "Game difficulty",
+            "env_variable": "DIFFICULTY",
+            "default_value": "Normal",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|in:Easy,Normal,Hard,Peaceful",
+            "field_type": "text"
+        },
+        {
+            "name": "Gamemode",
+            "description": "",
+            "env_variable": "GAMEMODE",
+            "default_value": "Survival",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|in:Survival,Creative,Adventure,Spectator",
+            "field_type": "text"
+        },
+        {
+            "name": "Force Gamemode",
+            "description": "",
+            "env_variable": "FORCE_GAMEMODE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Max Players",
+            "description": "Maximum amount of players",
+            "env_variable": "MAX_PLAYERS",
+            "default_value": "10",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|integer|max:100",
+            "field_type": "text"
+        }
+    ]
+}
