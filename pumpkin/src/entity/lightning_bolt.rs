@@ -4,15 +4,15 @@ use rand::{RngExt};
 
 use pumpkin_data::sound::{Sound, SoundCategory};
 use pumpkin_data::damage::DamageType;
+use crate::entity::{Entity, EntityBase, EntityBaseFuture, NBTStorage, living::LivingEntity, player::Player};
+use crate::server::Server;
+use crate::world::World;
+use pumpkin_util::Difficulty;
+use crate::block::blocks::fire::FireBlockBase;
+use crate::block::blocks::fire::fire::FireBlock;
 use pumpkin_util::math::position::BlockPos;
 use pumpkin_util::math::vector3::Vector3;
 use pumpkin_world::world::BlockFlags;
-
-use crate::block::blocks::fire::FireBlockBase;
-use crate::block::blocks::fire::fire::FireBlock;
-use crate::entity::{Entity, EntityBase, EntityBaseFuture, NBTStorage, living::LivingEntity, player::Player};
-use crate::server::Server;
-use pumpkin_util::Difficulty;
 
 pub struct LightningBoltEntity {
     entity: Entity,
@@ -22,7 +22,6 @@ pub struct LightningBoltEntity {
     cause: tokio::sync::Mutex<Option<Arc<Player>>>,
     // Store hit entity IDs as i32 to avoid reference cycles or holding too many Arcs
     hit_entities: tokio::sync::Mutex<std::collections::HashSet<i32>>,
-    blocks_set_on_fire: AtomicI32,
     random_interval_offset: i32,
 }
 
@@ -36,7 +35,6 @@ impl LightningBoltEntity {
             visual_only: AtomicBool::new(false),
             cause: tokio::sync::Mutex::new(None),
             hit_entities: tokio::sync::Mutex::new(std::collections::HashSet::new()),
-            blocks_set_on_fire: AtomicI32::new(0),
             random_interval_offset: rng.random_range(0..10),
         }
     }
@@ -53,8 +51,44 @@ impl LightningBoltEntity {
         self.cause.lock().await.clone()
     }
 
-    async fn spawn_fire(&self, additional_sources: i32) {
-        // TODO: add spawn fire logic
+    async fn spawn_fire(&self, world: &Arc<World>, pos: Vector3<f64>, additional_sources: i32) {
+        if self.visual_only.load(Relaxed) {
+            return;
+        }
+        let block_pos = BlockPos::new(
+            pos.x.floor() as i32,
+            pos.y.floor() as i32,
+            pos.z.floor() as i32,
+        );
+
+        if world.is_loaded(&block_pos) {
+            let fire_block = FireBlockBase::get_fire_type(world, &block_pos);
+            if FireBlockBase::can_place_at(world, &block_pos) {
+                let state_id = FireBlock.get_state_for_position(world, &fire_block, &block_pos);
+                world.set_block_state(&block_pos, state_id, BlockFlags::NOTIFY_ALL).await;
+            }
+
+            let offsets: Vec<Vector3<i32>> = {
+                let mut rng = rand::rng();
+                (0..additional_sources)
+                    .map(|_| Vector3::new(
+                        rng.random_range(-1..=1),
+                        rng.random_range(-1..=1),
+                        rng.random_range(-1..=1),
+                    ))
+                    .collect()
+            };
+            for offset in offsets {
+                let offset_pos = block_pos.offset(offset);
+                if world.is_loaded(&offset_pos) {
+                    let fire_block = FireBlockBase::get_fire_type(world, &offset_pos);
+                    if FireBlockBase::can_place_at(world, &offset_pos) {
+                        let state_id = FireBlock.get_state_for_position(world, &fire_block, &offset_pos);
+                        world.set_block_state(&offset_pos, state_id, BlockFlags::NOTIFY_ALL).await;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -92,7 +126,7 @@ impl EntityBase for LightningBoltEntity {
 
                 let difficulty = world.level_info.load().difficulty;
                 if difficulty == Difficulty::Normal || difficulty == Difficulty::Hard {
-                    self.spawn_fire(4).await;
+                    self.spawn_fire(&world, pos, 4).await;
                 }
             }
 
@@ -106,7 +140,7 @@ impl EntityBase for LightningBoltEntity {
                 } else if next_life < -self.random_interval_offset {
                     self.flashes.store(flashes - 1, Relaxed);
                     self.life.store(1, Relaxed);
-                    self.spawn_fire(0).await;
+                    self.spawn_fire(&world, pos, 0).await;
                 }
             }
 
@@ -120,6 +154,7 @@ impl EntityBase for LightningBoltEntity {
                 for target in entities {
                     let target_id = target.get_entity().entity_id;
                     if target_id != self.entity.entity_id && !hit_guard.contains(&target_id) {
+                        target.get_entity().set_on_fire_for(8.0);
                         target.damage(lightning_bolt_entity_base.as_ref(), 5.0, DamageType::LIGHTNING_BOLT).await;
                         hit_guard.insert(target_id);
                     }

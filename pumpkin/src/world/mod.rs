@@ -1637,12 +1637,13 @@ impl World {
                     );
                     self.spawn_entity(Arc::new(entity)).await;
                 }
-                let entity = Entity::new(
-                    self.clone(),
-                    random_pos.to_f64().add_raw(0.5, 0., 0.5),
+                let entity = from_type(
                     &EntityType::LIGHTNING_BOLT,
+                    random_pos.to_f64().add_raw(0.5, 0., 0.5),
+                    self,
+                    uuid::Uuid::new_v4(),
                 );
-                self.spawn_entity(Arc::new(entity)).await;
+                self.spawn_entity(entity).await;
             }
         }
 
