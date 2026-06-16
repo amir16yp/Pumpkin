@@ -159,7 +159,17 @@ impl<M: MoveToTargetPos> Goal for MoveToTargetPosGoal<M> {
 
     fn start<'a>(&'a mut self, mob: &'a dyn Mob) -> GoalFuture<'a, ()> {
         Box::pin(async {
-            Self::start_moving_to_target(mob);
+            let target_pos = self.get_target_pos().to_f64();
+            let mut navigator = mob.get_mob_entity().navigator.lock().unwrap();
+            navigator.set_progress(NavigatorGoal {
+                current_progress: mob.get_entity().pos.load(),
+                destination: Vector3::new(
+                    target_pos.x + 0.5,
+                    target_pos.y,
+                    target_pos.z + 0.5,
+                ),
+                speed: self.speed,
+            });
             self.trying_time = 0;
             let random = mob.get_random().random_range(0..MIN_WAITING_TIME);
             self.safe_waiting_time =

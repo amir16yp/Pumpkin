@@ -311,7 +311,14 @@ impl Navigator {
             return;
         };
 
-        if goal.current_progress == goal.destination {
+        let current_pos = entity.entity.pos.load();
+        let reach_xz = f64::from(self.mob_width).max(0.5);
+        let dest_dx = goal.destination.x - current_pos.x;
+        let dest_dy = goal.destination.y - current_pos.y;
+        let dest_dz = goal.destination.z - current_pos.z;
+        let dest_horizontal_dist_sq = dest_dx * dest_dx + dest_dz * dest_dz;
+
+        if dest_horizontal_dist_sq < reach_xz * reach_xz && dest_dy.abs() < 1.0 {
             self.is_idle.store(true, Ordering::Relaxed);
             self.current_path = None;
             entity.movement_input.store(Vector3::new(0.0, 0.0, 0.0));
@@ -339,6 +346,8 @@ impl Navigator {
 
         if let Some(path) = &mut self.current_path {
             if path.is_done() || !path.is_valid() {
+                self.is_idle.store(true, Ordering::Relaxed);
+                self.current_path = None;
                 entity.movement_input.store(Vector3::new(0.0, 0.0, 0.0));
                 self.current_goal = Some(goal);
                 return;
@@ -353,6 +362,7 @@ impl Navigator {
             }
 
             if self.ticks_on_current_node > 100 {
+                self.is_idle.store(true, Ordering::Relaxed);
                 self.current_path = None;
                 self.ticks_on_current_node = 0;
                 entity.movement_input.store(Vector3::new(0.0, 0.0, 0.0));
@@ -368,6 +378,7 @@ impl Navigator {
                     let dz = current_pos.z - start_pos.z;
                     let dist_sq = dx * dx + dy * dy + dz * dz;
                     if dist_sq < 2.0 * 2.0 {
+                        self.is_idle.store(true, Ordering::Relaxed);
                         self.current_path = None;
                         self.ticks_on_current_node = 0;
                         entity.movement_input.store(Vector3::new(0.0, 0.0, 0.0));
