@@ -93,6 +93,7 @@ pub mod falling;
 pub mod hunger;
 pub mod item;
 pub mod living;
+pub mod lightning_bolt;
 pub mod mob;
 pub mod passive;
 pub mod player;

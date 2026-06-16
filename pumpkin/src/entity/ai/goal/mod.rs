@@ -32,6 +32,7 @@ pub mod tempt;
 pub(crate) mod track_target;
 pub mod wander_around;
 pub mod zombie_attack;
+pub mod nearest_attackable_target;
 
 #[must_use]
 pub const fn to_goal_ticks(server_ticks: i32) -> i32 {
