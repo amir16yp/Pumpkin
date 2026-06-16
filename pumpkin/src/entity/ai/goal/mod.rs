@@ -20,6 +20,7 @@ pub mod look_around;
 pub mod look_at_entity;
 pub mod melee_attack;
 pub mod move_to_target_pos;
+pub mod nearest_attackable_target;
 pub mod owner_hurt_by_target;
 pub mod owner_hurt_target;
 pub mod pick_up_block;
@@ -32,7 +33,6 @@ pub mod tempt;
 pub(crate) mod track_target;
 pub mod wander_around;
 pub mod zombie_attack;
-pub mod nearest_attackable_target;
 
 #[must_use]
 pub const fn to_goal_ticks(server_ticks: i32) -> i32 {

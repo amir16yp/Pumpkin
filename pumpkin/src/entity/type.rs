@@ -13,6 +13,7 @@ use crate::entity::decoration::{
 use crate::entity::experience_orb::ExperienceOrbEntity;
 use crate::entity::falling::FallingEntity;
 use crate::entity::item::ItemEntity;
+use crate::entity::lightning_bolt::LightningBoltEntity;
 use crate::entity::living::LivingEntity;
 use crate::entity::mob::bat::{self, BatEntity};
 use crate::entity::mob::blaze::BlazeEntity;
@@ -108,7 +109,6 @@ use crate::entity::projectile::splash_potion::SplashPotionEntity;
 use crate::entity::projectile::wind_charge::{WIND_CHARGE_GRAVITY, WindChargeEntity};
 use crate::entity::tnt::TNTEntity;
 use crate::entity::vehicle::boat::BoatEntity;
-use crate::entity::lightning_bolt::LightningBoltEntity;
 use crate::entity::{Entity, EntityBase, mob};
 use crate::world::World;
 use pumpkin_data::Block;

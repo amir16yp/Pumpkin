@@ -1,15 +1,17 @@
+use rand::RngExt;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering::Relaxed};
-use rand::{RngExt};
 
-use pumpkin_data::sound::{Sound, SoundCategory};
-use pumpkin_data::damage::DamageType;
-use crate::entity::{Entity, EntityBase, EntityBaseFuture, NBTStorage, living::LivingEntity, player::Player};
-use crate::server::Server;
-use crate::world::World;
-use pumpkin_util::Difficulty;
 use crate::block::blocks::fire::FireBlockBase;
 use crate::block::blocks::fire::fire::FireBlock;
+use crate::entity::{
+    Entity, EntityBase, EntityBaseFuture, NBTStorage, living::LivingEntity, player::Player,
+};
+use crate::server::Server;
+use crate::world::World;
+use pumpkin_data::damage::DamageType;
+use pumpkin_data::sound::{Sound, SoundCategory};
+use pumpkin_util::Difficulty;
 use pumpkin_util::math::position::BlockPos;
 use pumpkin_util::math::vector3::Vector3;
 use pumpkin_world::world::BlockFlags;
@@ -65,17 +67,21 @@ impl LightningBoltEntity {
             let fire_block = FireBlockBase::get_fire_type(world, &block_pos);
             if FireBlockBase::can_place_at(world, &block_pos) {
                 let state_id = FireBlock.get_state_for_position(world, &fire_block, &block_pos);
-                world.set_block_state(&block_pos, state_id, BlockFlags::NOTIFY_ALL).await;
+                world
+                    .set_block_state(&block_pos, state_id, BlockFlags::NOTIFY_ALL)
+                    .await;
             }
 
             let offsets: Vec<Vector3<i32>> = {
                 let mut rng = rand::rng();
                 (0..additional_sources)
-                    .map(|_| Vector3::new(
-                        rng.random_range(-1..=1),
-                        rng.random_range(-1..=1),
-                        rng.random_range(-1..=1),
-                    ))
+                    .map(|_| {
+                        Vector3::new(
+                            rng.random_range(-1..=1),
+                            rng.random_range(-1..=1),
+                            rng.random_range(-1..=1),
+                        )
+                    })
                     .collect()
             };
             for offset in offsets {
@@ -83,8 +89,11 @@ impl LightningBoltEntity {
                 if world.is_loaded(&offset_pos) {
                     let fire_block = FireBlockBase::get_fire_type(world, &offset_pos);
                     if FireBlockBase::can_place_at(world, &offset_pos) {
-                        let state_id = FireBlock.get_state_for_position(world, &fire_block, &offset_pos);
-                        world.set_block_state(&offset_pos, state_id, BlockFlags::NOTIFY_ALL).await;
+                        let state_id =
+                            FireBlock.get_state_for_position(world, &fire_block, &offset_pos);
+                        world
+                            .set_block_state(&offset_pos, state_id, BlockFlags::NOTIFY_ALL)
+                            .await;
                     }
                 }
             }
@@ -155,7 +164,13 @@ impl EntityBase for LightningBoltEntity {
                     let target_id = target.get_entity().entity_id;
                     if target_id != self.entity.entity_id && !hit_guard.contains(&target_id) {
                         target.get_entity().set_on_fire_for(8.0);
-                        target.damage(lightning_bolt_entity_base.as_ref(), 5.0, DamageType::LIGHTNING_BOLT).await;
+                        target
+                            .damage(
+                                lightning_bolt_entity_base.as_ref(),
+                                5.0,
+                                DamageType::LIGHTNING_BOLT,
+                            )
+                            .await;
                         hit_guard.insert(target_id);
                     }
                 }

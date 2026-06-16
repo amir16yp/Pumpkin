@@ -112,7 +112,6 @@ impl<M: MoveToTargetPos> MoveToTargetPosGoal<M> {
     const fn should_reset_path(&self) -> bool {
         self.trying_time % 40 == 0
     }
-
 }
 
 // Contains overridable functions
@@ -160,11 +159,7 @@ impl<M: MoveToTargetPos> Goal for MoveToTargetPosGoal<M> {
             let mut navigator = mob.get_mob_entity().navigator.lock().unwrap();
             navigator.set_progress(NavigatorGoal {
                 current_progress: mob.get_entity().pos.load(),
-                destination: Vector3::new(
-                    target_pos.x + 0.5,
-                    target_pos.y,
-                    target_pos.z + 0.5,
-                ),
+                destination: Vector3::new(target_pos.x + 0.5, target_pos.y, target_pos.z + 0.5),
                 speed: self.speed,
             });
             self.trying_time = 0;
