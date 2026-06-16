@@ -40,7 +40,7 @@ impl Goal for LeapAtTargetGoal {
             let target_pos = target.get_entity().pos.load();
             let d = mob_pos.squared_distance_to_vec(&target_pos);
 
-            if d < 4.0 || d > 16.0 {
+            if !(4.0..=16.0).contains(&d) {
                 return false;
             }
 

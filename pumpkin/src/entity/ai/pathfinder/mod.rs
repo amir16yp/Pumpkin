@@ -302,7 +302,7 @@ impl Navigator {
         })
     }
 
-    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::too_many_lines, clippy::similar_names)]
     pub async fn tick(&mut self, entity: &LivingEntity) {
         let Some(goal) = self.current_goal.take() else {
             // Idle: stop the mob
